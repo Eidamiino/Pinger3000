@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 
 namespace Pinger3000
@@ -19,21 +20,21 @@ namespace Pinger3000
 		static void Main(string[] args)
 		{
 			Ping pingSender = new Ping();
-			PingOptions options = new PingOptions();
-
-			options.DontFragment = true;
-
-			// Create a buffer of 32 bytes of data to be transmitted.
-			string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-			byte[] buffer = Encoding.ASCII.GetBytes(data);
-			int timeout = 120;
+			// PingOptions options = new PingOptions();
+			//
+			// options.DontFragment = true;
+			//
+			// string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			// byte[] buffer = Encoding.ASCII.GetBytes(data);
+			// int timeout = 120;
+			//nemám tušení co ten kod nahoře dělá, ale byl na microsoft dokumentaci a když ho odkomentuju do pingu tak to aji nekdy failuje
 			int counter = 0, sum = 0;
 			int success = 0, failed = 0;
 			string currentTime = DateTime.Now.ToString();
 			while(true)
 			{
 				{
-					PingReply reply = pingSender.Send(ipAdd, timeout, buffer, options);
+					PingReply reply = pingSender.Send(ipAdd);
 
 					if (reply.Status == IPStatus.Success)
 					{
@@ -93,7 +94,7 @@ namespace Pinger3000
 			PrintPBAverage(reply, sum, counter);
 			Console.ForegroundColor = ConsoleColor.Gray;
 
-			Console.Write($" {reply.RoundtripTime}ms\n");
+			Console.Write($" {sum/counter}ms\n");
 		}
 
 		#endregion
@@ -148,7 +149,7 @@ namespace Pinger3000
 		private static string ReturnReplyInfo(PingReply reply)
 		{
 			string replyInfo =
-				$"Reply from {reply.Address.ToString()}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}";
+				$"Reply from {ipAdd}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}";
 			return replyInfo;
 		}
 
