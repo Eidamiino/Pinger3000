@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace Pinger3000
 	internal class Program
 	{
 		public static List<string> pingResults = new List<string>();
-		public const int maxLinesOnScreen = 20;
+		public const int maxLinesOnScreen = 5;
 		public const string ipAdd = "159.49.47.135";
 		public const int delay = 1000;
 		public const int block = 25;
@@ -23,7 +23,7 @@ namespace Pinger3000
 			Ping pingSender = new Ping();
 			PingOptions options = new PingOptions();
 			options.DontFragment = true;
-			
+
 			string data = "hrochzirafamatrixjenejlepsiatom";
 			byte[] buffer = Encoding.ASCII.GetBytes(data);
 
@@ -34,7 +34,7 @@ namespace Pinger3000
 			while (true)
 			{
 				{
-					PingReply reply = pingSender.Send(ipAdd,timeout,buffer,options);
+					PingReply reply = pingSender.Send(ipAdd, timeout, buffer, options);
 
 					if (reply.Status == IPStatus.Success)
 					{
@@ -42,13 +42,13 @@ namespace Pinger3000
 							RemoveFromListIfFull(reply);
 						else
 							pingResults.Add(ReturnReplyInfo(reply));
-						
+
 
 						success++;
 						counter++;
 						sum += Convert.ToInt32(reply.RoundtripTime);
 
-						Console.SetCursorPosition(0,0);
+						Console.SetCursorPosition(0, 0);
 						PrintReplyInfo(reply, sum, counter, success, failed, startedTime);
 						PrintList(pingResults);
 
@@ -74,9 +74,9 @@ namespace Pinger3000
 		private static void PrintReplyInfo(PingReply reply, int sum, int counter, int success, int failed, string startedTime)
 		{
 			Console.Write($"Started: {startedTime}\t" +
-			              $"Successful: {success}\t" +
-			              $"Failed: {failed}\n" +
-			              $"Pinging: {ipAdd}\t");
+										$"Successful: {success}\t" +
+										$"Failed: {failed}\n" +
+										$"Pinging: {ipAdd}\t");
 			PrintLastPing(reply);
 			PrintAveragePing(reply, sum, counter);
 		}
@@ -96,7 +96,7 @@ namespace Pinger3000
 			PrintPBAverage(reply, sum, counter);
 			Console.ForegroundColor = ConsoleColor.Gray;
 
-			Console.Write($" {sum/counter}ms\n\n");
+			Console.Write($" {sum / counter}ms\n\n");
 		}
 
 		#endregion
@@ -106,7 +106,8 @@ namespace Pinger3000
 		private static void PrintPBLatest(PingReply reply)
 		{
 			int i = 0;
-			do {
+			do
+			{
 				Console.Write(blockChar);
 				i++;
 			} while (i < reply.RoundtripTime / block);
@@ -114,10 +115,11 @@ namespace Pinger3000
 		private static void PrintPBAverage(PingReply reply, int sum, int counter)
 		{
 			int i = 0;
-			do {
+			do
+			{
 				Console.Write(blockChar);
 				i++;
-			} while (i < (sum/counter) / block);
+			} while (i < (sum / counter) / block);
 		}
 
 		#endregion
@@ -144,11 +146,7 @@ namespace Pinger3000
 		private static void RemoveFromListIfFull(PingReply reply)
 		{
 			pingResults.RemoveAt(0);
-			for (int i = 0; i < pingResults.Count - 1; i++)
-			{
-				pingResults[i] = pingResults[i + 1];
-			}
-			pingResults.Insert(maxLinesOnScreen-1, $"Reply from {reply.Address.ToString()}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}");
+			pingResults.Insert(maxLinesOnScreen - 1, $"Reply from {reply.Address.ToString()}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}");
 
 		}
 		private static string ReturnReplyInfo(PingReply reply)
