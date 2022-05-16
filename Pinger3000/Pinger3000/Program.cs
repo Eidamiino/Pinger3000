@@ -35,29 +35,26 @@ namespace Pinger3000
 			{
 				{
 					PingReply reply = pingSender.Send(ipAdd, timeout, buffer, options);
+					if (pingResults.Count == maxLinesOnScreen)
+							RemoveFromListIfFull(reply);
+					else
+						pingResults.Add(ReturnReplyInfo(reply));
 
 					if (reply.Status == IPStatus.Success)
 					{
-						if (pingResults.Count == maxLinesOnScreen)
-							RemoveFromListIfFull(reply);
-						else
-							pingResults.Add(ReturnReplyInfo(reply));
-
-
 						success++;
-						counter++;
-						sum += Convert.ToInt32(reply.RoundtripTime);
-
-						Console.SetCursorPosition(0, 0);
-						PrintReplyInfo(reply, sum, counter, success, failed, startedTime);
-						PrintList(pingResults);
-
-						Thread.Sleep(delay);
 					}
 					else
 					{
 						failed++;
 					}
+					sum += Convert.ToInt32(reply.RoundtripTime);
+					counter++;
+					Console.SetCursorPosition(0, 0);
+					PrintReplyInfo(reply, sum, counter, success, failed, startedTime);
+					PrintList(pingResults);
+
+					Thread.Sleep(delay);
 				}
 			}
 		}
@@ -146,13 +143,16 @@ namespace Pinger3000
 		private static void RemoveFromListIfFull(PingReply reply)
 		{
 			pingResults.RemoveAt(0);
-			pingResults.Insert(maxLinesOnScreen - 1, $"Reply from {reply.Address.ToString()}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}");
-
+			if (reply.Status == IPStatus.Success)
+				pingResults.Insert(maxLinesOnScreen - 1, $"Reply from {reply.Address.ToString()}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}");
+			else pingResults.Insert(maxLinesOnScreen-1,"No reply");
 		}
 		private static string ReturnReplyInfo(PingReply reply)
 		{
-			return $"Reply from {ipAdd}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}";
-		}
+			if(reply.Status==IPStatus.Success)
+				return $"Reply from {ipAdd}: bytes={reply.Buffer.Length} time={reply.RoundtripTime}ms TTL={reply.Options.Ttl}";
+			return "No reply";
+			 }
 
 	}
 }
